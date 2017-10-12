@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"github.com/lithium/macro11-assembler/src/macro11"
 )
 
 func main() {
@@ -26,7 +28,9 @@ func main() {
 		panic(err)
 	}
 
-	err = ioutil.WriteFile(*outputPath, inputText, 0644)
+	outputBytes := macro11.Assemble(inputText)
+
+	err = ioutil.WriteFile(*outputPath, outputBytes, 0644)
 	if err != nil {
 		panic(err)
 	}
