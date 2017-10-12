@@ -10,20 +10,10 @@ import (
 )
 
 func main() {
-
-	inputPath := flag.String("input", "", "path to input source file")
 	outputPath := flag.String("output", "a.out", "output path")
-
 	flag.Parse()
 
-	var inputText []byte;
-	var err error;
-
-	if len(*inputPath) > 0 {
-		inputText, err = ioutil.ReadFile(*inputPath)
-	} else {
-		inputText, err = ioutil.ReadAll(os.Stdin)
-	}
+	inputText, err := collectInput(os.Args[1:])
 	if err != nil {
 		panic(err)
 	}
@@ -36,4 +26,22 @@ func main() {
 	}
 
 	fmt.Printf("done!\n")
+}
+
+func collectInput(args []string) ([]byte, error) {
+	var allText []byte;
+
+	if len(args) < 1 {
+		return ioutil.ReadAll(os.Stdin)
+	}
+
+	for _, arg := range args {
+		inputText, err := ioutil.ReadFile(arg)
+		if err != nil {
+			return nil, err
+		}
+		allText = append(allText, inputText...)
+	}
+
+	return allText, nil
 }
