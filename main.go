@@ -11,6 +11,9 @@ import (
 
 func main() {
 	outputPath := flag.String("output", "a.out", "output path")
+	listingPath := flag.String("listing", "a.lst", "listing file path")
+	useListing := flag.Bool("use-listing", true, "should a listing be generated")
+
 	flag.Parse()
 
 	inputText, err := collectInput(os.Args[1:])
@@ -18,11 +21,21 @@ func main() {
 		panic(err)
 	}
 
-	outputBytes := macro11.Assemble(inputText)
-
-	err = ioutil.WriteFile(*outputPath, outputBytes, 0644)
+	outputBytes, listingBytes, err := macro11.Assemble(inputText)
 	if err != nil {
 		panic(err)
+	}
+
+	err = ioutil.WriteFile(*outputPath, outputBytes, 0644) 
+	if err != nil {
+		panic(err)
+	}
+
+	if (*useListing) {
+		err = ioutil.WriteFile(*listingPath, listingBytes, 0644)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	fmt.Printf("done!\n")
