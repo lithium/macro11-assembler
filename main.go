@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
+	"bytes"
 
 	"github.com/lithium/macro11-assembler/src/macro11"
 )
@@ -16,12 +18,12 @@ func main() {
 
 	flag.Parse()
 
-	inputText, err := collectInput(os.Args[1:])
+	input, err := collectInput(os.Args[1:])
 	if err != nil {
 		panic(err)
 	}
 
-	outputBytes, listingBytes, err := macro11.Assemble(inputText)
+	outputBytes, listingBytes, err := macro11.Assemble(input)
 	if err != nil {
 		panic(err)
 	}
@@ -41,20 +43,20 @@ func main() {
 	fmt.Printf("done!\n")
 }
 
-func collectInput(args []string) ([]byte, error) {
-	var allText []byte;
+func collectInput(args []string) (io.Reader, error) {
+	var allInput bytes.Buffer;
 
 	if len(args) < 1 {
-		return ioutil.ReadAll(os.Stdin)
+		return os.Stdin, nil
 	}
 
 	for _, arg := range args {
-		inputText, err := ioutil.ReadFile(arg)
+		argFile, err := os.Open(arg)
 		if err != nil {
 			return nil, err
 		}
-		allText = append(allText, inputText...)
+		allInput.ReadFrom(argFile)
 	}
 
-	return allText, nil
+	return bytes.NewReader(allInput.Bytes()), nil
 }
